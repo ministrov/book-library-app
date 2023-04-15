@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "An awesome book-library-app",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "live-server",
+    "build": "rollup -c --watch"
   },
   "repository": {
     "type": "git",
@@ -15,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/ministrov/book-library-app/issues"
   },
-  "homepage": "https://github.com/ministrov/book-library-app#readme"
+  "homepage": "https://github.com/ministrov/book-library-app#readme",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "eslint": "^8.38.0",
+    "rollup": "^3.20.2",
+    "rollup-plugin-import-css": "^3.2.1"
+  }
 }
