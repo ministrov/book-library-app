@@ -1,3 +1,72 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.card__image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 180px;
+  padding: 10px;
+  background: #B8B8B8;
+}
+
+.card__info {
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  padding: 10px;
+  color: var(--white);
+  background: var(--black);
+}
+
+.card__tag {
+  margin-bottom: 3px;
+  font-weight: 300;
+  font-size: 11px;
+  line-height: 15px;
+  color: #DEDEDE;
+}
+
+.card__name {
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 16px;
+  color: var(--white);
+}
+
+.card__author {
+  font-size: 11px;
+  line-height: 15px;
+  color: #FFFFFF;
+}
+
+.card__footer {
+  display: flex;
+  margin-top: auto;
+}
+
+.button__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 32px;
+  background: none;
+  border: 1px solid #FAFAFA;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button__active {
+  background: var(--white);
+}
+
+
 .card_list--loader {
   display: flex;
   align-items: center;
