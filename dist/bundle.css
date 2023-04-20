@@ -1,3 +1,9 @@
+.card_list--loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
 .header {
   display: flex;
   align-items: center;
