@@ -21,22 +21,23 @@ export class MainView extends AbstractView {
     this.setTitle('Поиск книг');
   }
 
-  appStateHook(path) {
-    console.log(path);
+  destroy() {
+    // Отписка от того чтобы следить за объектом на другой странице
+    onChange.unsubscribe(this.appState);
+    onChange.unsubscribe(this.state);
+  }
 
+  appStateHook(path) {
     if (path === 'favorites') {
-      console.log(path);
+      this.render();
     }
   }
 
   async stateHook(path) {
-    console.log(path);
-
     if (path === 'searchQuery') {
       this.state.loading = true;
       const data = await this.loadList(this.state.searchQuery, this.state.offset);
       this.state.loading = false;
-      console.log(data);
       this.state.numFound = data.numFound;
       this.state.list = data.docs;
     }
@@ -54,6 +55,9 @@ export class MainView extends AbstractView {
 
   render() {
     const main = document.createElement('div');
+    main.innerHTML = `
+      <h2>Найдено книг – ${this.state.numFound}</h2>
+    `
     main.append(new Search(this.state).render());
     main.append(new CardList(this.appState, this.state).render());
     this.app.innerHTML = '';
