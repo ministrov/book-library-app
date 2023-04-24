@@ -14,7 +14,7 @@ export class Header extends DivComponent {
         <img src="/static/logo.svg" alt="Логотип приложения по поиску книг"/>
       </div>
       <div class="menu">
-        <a class="menu__item" href="#">
+        <a class="menu__item" href="">
           <img src="/static/search.svg" alt="Иконка поиска"/>
           Поиск книг
         </a>

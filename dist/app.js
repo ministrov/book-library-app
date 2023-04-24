@@ -36,11 +36,22 @@
       this.cardState = cardState;
     }
 
+    #addToFavorites() {
+      this.appState.favorites.push(this.cardState);
+    }
+
+    #deleteFromFavorites() {
+      this.appState.favorites = this.appState.favorites.filter(
+        book => book.key !== this.cardState.key
+      );
+    }
+
     render() {
       this.el.classList.add('card');
       const existInFavorites = this.appState.favorites.find(
-        book => book.key === this.appState.key
+        book => book.key === this.cardState.key
       );
+      console.log(existInFavorites);
       this.el.innerHTML = `
       <div class="card__image">
         <img src="https://covers.openlibrary.org/b/olid/${this.cardState.cover_edition_key}-M.jpg" alt="Обложка"/>
@@ -58,13 +69,22 @@
         <div class="card__footer">
           <button class="button__add ${existInFavorites ? 'button__active' : ''}">
             ${existInFavorites
-              ? '<img src="/static/favorites.svg" alt="Добавить в избранное"/>'
-              : '<img src="/static/favorites-white.svg" alt="Уже в избранном"/>'
+              ? '<img src="/static/favorites.svg" alt="Уже в избранном"/>'
+              : '<img src="/static/favorites-white.svg" alt="Добавить в избранное"/>'
             }
           </button>
         </div>
       </div>
     `;
+      if (existInFavorites) {
+        this.el
+          .querySelector('button')
+          .addEventListener('click', this.#deleteFromFavorites.bind(this));
+      } else {
+        this.el
+          .querySelector('button')
+          .addEventListener('click', this.#addToFavorites.bind(this));
+      }
       return this.el;
     }
   }
@@ -81,12 +101,12 @@
         this.el.innerHTML = `<div class="card_list--loader">Загрузка...</div>`;
         return this.el;
       }
-      this.el.classList.add('card_list');
-      this.el.innerHTML = `
-      <h2>Найдено книг – ${this.parentState.numFound}</h2>
-    `;
+      const cardGrid = document.createElement('div');
+      cardGrid.classList.add('card_grid');
+      this.el.append(cardGrid);
+
       for (const card of this.parentState.list) {
-        this.el.append(new Card(this.appState, card).render());
+        cardGrid.append(new Card(this.appState, card).render());
       }
       return this.el;
     }
@@ -105,7 +125,7 @@
         <img src="/static/logo.svg" alt="Логотип приложения по поиску книг"/>
       </div>
       <div class="menu">
-        <a class="menu__item" href="#">
+        <a class="menu__item" href="">
           <img src="/static/search.svg" alt="Иконка поиска"/>
           Поиск книг
         </a>
@@ -119,42 +139,6 @@
       </div>
     `;
 
-      return this.el;
-    }
-  }
-
-  class Search extends DivComponent {
-    constructor(state) {
-      super();
-      this.state = state;
-    }
-
-    search() {
-      const value = this.el.querySelector('input').value;
-      this.state.searchQuery = value;
-    }
-
-    render() {
-      this.el.classList.add('search');
-      this.el.innerHTML = `
-      <div class="search__wrapper">
-        <input
-          class="search__input"
-          type="text" placeholder="Найти книгу или автора...."
-          value="${this.state.searchQuery ? this.state.searchQuery : ''}"
-        />
-        <img src="/static/search.svg" alt="Иконка поиска"/>
-      </div>
-      <button class="search__button" aria-label="Искать">
-        <img src="/static/search-white.svg" alt="Иконка поиска"/>
-      </button>
-    `;
-      this.el.querySelector('button').addEventListener('click', this.search.bind(this));
-      this.el.querySelector('input').addEventListener('keydown', (event) => {
-        if (event.code === 'Enter') {
-          this.search();
-        }
-      });
       return this.el;
     }
   }
@@ -1156,6 +1140,79 @@
   onChange.target = proxy => (proxy && proxy[TARGET]) || proxy;
   onChange.unsubscribe = proxy => proxy[UNSUBSCRIBE] || proxy;
 
+  class FavoritesView extends AbstractView {
+    constructor(appState) {
+      super();
+      this.appState = appState;
+      this.appState = onChange(this.appState, this.appStateHook.bind(this));
+      this.setTitle('Мои книги');
+    }
+
+    destroy() {
+      // Отписка от того чтобы следить за объектом на другой странице
+      onChange.unsubscribe(this.appState);
+      onChange.unsubscribe(this.state);
+    }
+
+    appStateHook(path) {
+      if (path === 'favorites') {
+        this.render();
+      }
+    }
+
+    render() {
+      const favorites = document.createElement('div');
+      favorites.innerHTML = `
+      <h2>Избранное - ${this.appState.favorites.length}</h2>
+    `;
+      favorites.append(new CardList(this.appState, { list: this.appState.favorites}).render());
+      this.app.innerHTML = '';
+      this.app.append(favorites);
+      this.renderHeader();
+    }
+
+    renderHeader() {
+      const header = new Header(this.appState).render();
+      this.app.prepend(header);
+    }
+  }
+
+  class Search extends DivComponent {
+    constructor(state) {
+      super();
+      this.state = state;
+    }
+
+    search() {
+      const value = this.el.querySelector('input').value;
+      this.state.searchQuery = value;
+    }
+
+    render() {
+      this.el.classList.add('search');
+      this.el.innerHTML = `
+      <div class="search__wrapper">
+        <input
+          class="search__input"
+          type="text" placeholder="Найти книгу или автора...."
+          value="${this.state.searchQuery ? this.state.searchQuery : ''}"
+        />
+        <img src="/static/search.svg" alt="Иконка поиска"/>
+      </div>
+      <button class="search__button" aria-label="Искать">
+        <img src="/static/search-white.svg" alt="Иконка поиска"/>
+      </button>
+    `;
+      this.el.querySelector('button').addEventListener('click', this.search.bind(this));
+      this.el.querySelector('input').addEventListener('keydown', (event) => {
+        if (event.code === 'Enter') {
+          this.search();
+        }
+      });
+      return this.el;
+    }
+  }
+
   class MainView extends AbstractView {
     state = {
       list: [],
@@ -1173,22 +1230,23 @@
       this.setTitle('Поиск книг');
     }
 
-    appStateHook(path) {
-      console.log(path);
+    destroy() {
+      // Отписка от того чтобы следить за объектом на другой странице
+      onChange.unsubscribe(this.appState);
+      onChange.unsubscribe(this.state);
+    }
 
+    appStateHook(path) {
       if (path === 'favorites') {
-        console.log(path);
+        this.render();
       }
     }
 
     async stateHook(path) {
-      console.log(path);
-
       if (path === 'searchQuery') {
         this.state.loading = true;
         const data = await this.loadList(this.state.searchQuery, this.state.offset);
         this.state.loading = false;
-        console.log(data);
         this.state.numFound = data.numFound;
         this.state.list = data.docs;
       }
@@ -1206,6 +1264,9 @@
 
     render() {
       const main = document.createElement('div');
+      main.innerHTML = `
+      <h2>Найдено книг – ${this.state.numFound}</h2>
+    `;
       main.append(new Search(this.state).render());
       main.append(new CardList(this.appState, this.state).render());
       this.app.innerHTML = '';
@@ -1221,11 +1282,12 @@
 
   class App {
     routes = [
-      { path: "", view: MainView }
+      { path: "", view: MainView },
+      { path: "#favorites", view: FavoritesView}
     ];
 
     appState = {
-      favorites: ['First book', 'Second book']
+      favorites: []
     };
 
     constructor() {
@@ -1237,8 +1299,8 @@
       if (this.currentView) {
         this.currentView.destroy();
       }
-      const view = this.routes.find(r => r.path == location.hash).view;
-      this.currentView = new view( this.appState);
+      const view = this.routes.find(route => route.path == location.hash).view;
+      this.currentView = new view(this.appState);
       this.currentView.render();
     }
   }

@@ -71,7 +71,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+}
+
+.card_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 25px;
+  row-gap: 20px;
 }
 .header {
   display: flex;

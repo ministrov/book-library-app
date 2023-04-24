@@ -8,11 +8,22 @@ export class Card extends DivComponent {
     this.cardState = cardState;
   }
 
+  #addToFavorites() {
+    this.appState.favorites.push(this.cardState);
+  }
+
+  #deleteFromFavorites() {
+    this.appState.favorites = this.appState.favorites.filter(
+      book => book.key !== this.cardState.key
+    );
+  }
+
   render() {
     this.el.classList.add('card');
     const existInFavorites = this.appState.favorites.find(
-      book => book.key === this.appState.key
+      book => book.key === this.cardState.key
     );
+    console.log(existInFavorites);
     this.el.innerHTML = `
       <div class="card__image">
         <img src="https://covers.openlibrary.org/b/olid/${this.cardState.cover_edition_key}-M.jpg" alt="Обложка"/>
@@ -30,13 +41,22 @@ export class Card extends DivComponent {
         <div class="card__footer">
           <button class="button__add ${existInFavorites ? 'button__active' : ''}">
             ${existInFavorites
-              ? '<img src="/static/favorites.svg" alt="Добавить в избранное"/>'
-              : '<img src="/static/favorites-white.svg" alt="Уже в избранном"/>'
+              ? '<img src="/static/favorites.svg" alt="Уже в избранном"/>'
+              : '<img src="/static/favorites-white.svg" alt="Добавить в избранное"/>'
             }
           </button>
         </div>
       </div>
     `
+    if (existInFavorites) {
+      this.el
+        .querySelector('button')
+        .addEventListener('click', this.#deleteFromFavorites.bind(this));
+    } else {
+      this.el
+        .querySelector('button')
+        .addEventListener('click', this.#addToFavorites.bind(this));
+    }
     return this.el;
   }
 }
