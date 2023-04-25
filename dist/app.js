@@ -1177,6 +1177,42 @@
     }
   }
 
+  class Pagination extends DivComponent {
+    constructor(parentState) {
+      super();
+      this.parentState = parentState;
+    }
+
+    nextPage() {
+      // this.parentState.offset += this.parentState.limit;
+      console.log('click next-button');
+    }
+
+    render() {
+      this.el.classList.add('pagination');
+      this.el.innerHTML = `
+      <div class="pagination__container">
+        <button class="pagination__button" id="prev-button" title="Previous page" aria-label="Previous page">
+          <img src="/static/prev.svg"/>
+          Предыдущая страница
+        </button>
+
+        <div id="pagination__numbers">
+          ${this.parentState.offset}
+        </div>
+
+        <button  class="pagination__button" id="next-button" title="Next page" aria-label="Next page">
+          Следующая страница
+          <img src="/static/next.svg"/>
+        </button>
+      </div>
+    `;
+
+      this.el.querySelector('#next-button').addEventListener('click', this.nextPage.bind(this));
+      return this.el;
+    }
+  }
+
   class Search extends DivComponent {
     constructor(state) {
       super();
@@ -1217,6 +1253,7 @@
     state = {
       list: [],
       numFound: 0,
+      limit: 6,
       loading: false,
       searchQuery: undefined,
       offset: 0
@@ -1245,7 +1282,7 @@
     async stateHook(path) {
       if (path === 'searchQuery') {
         this.state.loading = true;
-        const data = await this.loadList(this.state.searchQuery, this.state.offset);
+        const data = await this.loadList(this.state.searchQuery, this.state.offset, this.state.limit);
         this.state.loading = false;
         this.state.numFound = data.numFound;
         this.state.list = data.docs;
@@ -1254,10 +1291,15 @@
       if (path === 'list' || path === 'loading') {
         this.render();
       }
+
+      if (path === 'offset') {
+        this.state.offset += this.state.limit;
+        this.render();
+      }
     }
 
-    async loadList(query, offset) {
-      const res = await fetch(`http://openlibrary.org/search.json?q=${query}&offset=${offset}`);
+    async loadList(query, offset, limit) {
+      const res = await fetch(`http://openlibrary.org/search.json?q=${query}&offset=${offset}&limit=${limit}`);
 
       return res.json();
     }
@@ -1269,6 +1311,7 @@
     `;
       main.append(new Search(this.state).render());
       main.append(new CardList(this.appState, this.state).render());
+      main.append(new Pagination(this.state).render());
       this.app.innerHTML = '';
       this.app.append(main);
       this.renderHeader();
