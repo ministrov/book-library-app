@@ -1184,7 +1184,6 @@
     }
 
     nextPage() {
-      // this.parentState.offset += this.parentState.limit;
       console.log('click next-button');
     }
 
@@ -1192,7 +1191,7 @@
       this.el.classList.add('pagination');
       this.el.innerHTML = `
       <div class="pagination__container">
-        <button class="pagination__button" id="prev-button" title="Previous page" aria-label="Previous page">
+        <button class="pagination__button" id="prev-button" title="Previous page"   aria-label="Previous page">
           <img src="/static/prev.svg"/>
           Предыдущая страница
         </button>
@@ -1280,6 +1279,7 @@
     }
 
     async stateHook(path) {
+      console.log(path);
       if (path === 'searchQuery') {
         this.state.loading = true;
         const data = await this.loadList(this.state.searchQuery, this.state.offset, this.state.limit);
@@ -1289,11 +1289,6 @@
       }
 
       if (path === 'list' || path === 'loading') {
-        this.render();
-      }
-
-      if (path === 'offset') {
-        this.state.offset += this.state.limit;
         this.render();
       }
     }

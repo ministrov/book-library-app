@@ -36,6 +36,7 @@ export class MainView extends AbstractView {
   }
 
   async stateHook(path) {
+    console.log(path);
     if (path === 'searchQuery') {
       this.state.loading = true;
       const data = await this.loadList(this.state.searchQuery, this.state.offset, this.state.limit);
@@ -45,11 +46,6 @@ export class MainView extends AbstractView {
     }
 
     if (path === 'list' || path === 'loading') {
-      this.render();
-    }
-
-    if (path === 'offset') {
-      this.state.offset += this.state.limit;
       this.render();
     }
   }

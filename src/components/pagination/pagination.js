@@ -8,7 +8,6 @@ export class Pagination extends DivComponent {
   }
 
   nextPage() {
-    // this.parentState.offset += this.parentState.limit;
     console.log('click next-button');
   }
 
@@ -16,7 +15,7 @@ export class Pagination extends DivComponent {
     this.el.classList.add('pagination');
     this.el.innerHTML = `
       <div class="pagination__container">
-        <button class="pagination__button" id="prev-button" title="Previous page" aria-label="Previous page">
+        <button class="pagination__button" id="prev-button" title="Previous page"   aria-label="Previous page">
           <img src="/static/prev.svg"/>
           Предыдущая страница
         </button>
